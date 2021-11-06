@@ -91,8 +91,10 @@ type **M** only if **param(m) ⊆ param(M)**. This allows the dispatch to choose
 an appropriate method of a function based on **param(m)**.
 
 # Constructor of the type specialization
+
     Mode[ s₁ [=> t₁] [, s₂ [=> t₂]]... ]
-\n Construct a specialization **M=Mode{[s₁⇒t₁, s₂⇒t₂, ...]}** to be used as a 
+
+Construct a specialization **M=Mode{[s₁⇒t₁, s₂⇒t₂, ...]}** to be used as a 
 type for a argument in a function method declaration. The argument with type 
 **M** would accept only instances **m::Mode** with **param(m) ⊆ param(M)**. 
 Some or all **tᵢ** may absent in the type declaration which defaults to 
@@ -106,13 +108,16 @@ code for a type declaration look similar to the presentation of the type name
 in a function signature.
 
 # Constructors of an instance
+
     Mode( s₁[=> v₁] [, s₂ [=> v₂]]... )
-\n Construct an instance **m::Mode{[s₁⇒typeof(v₁), s₂⇒typeof(v₂), ...]}** with
+
+Construct an instance **m::Mode{[s₁⇒typeof(v₁), s₂⇒typeof(v₂), ...]}** with
 values **v₁, v₂, ...**. Some or all of **vᵢ** might be omited which defaults to 
 `nothing`. An example: `Mode(:a => 25, :b, :c => "Hello world!")`.
 
     Mode(s)
-\n Construct an instance **m::Mode{[s⇒Nothing]}** with `nothing` value. The 
+
+Construct an instance **m::Mode{[s⇒Nothing]}** with `nothing` value. The 
 type and value could be set by a subsequent call **m**`=>`**v**. Several 
 instances could be joined with `~` operator. For example, `Mode(:a)=> 25 ~ Mode
 (:b) ~ Mode(:c)=> "Hello world!"` is equivalent to `Mode(:a => 25, :b, :c => 
@@ -138,7 +143,8 @@ Let **m, m₁, m₂::Mode**. Then
     checkmode(m, s::Symbol)
     checkmode(m, [&, |, ==, or !], s₁::Symbol[, s₂:Symbol]...)
     checkmode(f, m, [&, |, ==, or !], s₁::Symbol[, s₂:Symbol]...)
-\n Tests if `m` is a `Mode` and contains the prescribed symbols.
+
+Tests if `m` is a `Mode` and contains the prescribed symbols.
 
 - In the 1st form the function tests for the presence of `s` in `m`. 
 - In the 2nd form the function tests either (for `&` or if any operation symbol 
