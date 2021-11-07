@@ -1,7 +1,7 @@
 """
     module ArgumentModes
 \n The module provides type `Mode` which could be seen as an extension of `Val`.
-`Mode` is intended to be used as a type for a function method argument. A 
+`Mode` is indended to be used as a type for a function method argument. A 
 specialization of `Mode` type contains a list of accepted symbols (flags). The 
 dispatch would choose the method only if the argument value (a `Mode` instance) 
 containes only symbols from the list of accepted symbols as declared in the type
@@ -64,11 +64,13 @@ considered in the tests).
   symbols, and, possibly, do an action.
 """
 module ArgumentModes
+  Base.Experimental.@optlevel 1 # 0 disables inlining
   include("Impl.jl")
   using .Impl
   Mode.body.body.name.module = ArgumentModes
   export checkmode
   export Mode
 
-  include("precompile.jl")
+  # doesn't seem to help
+  # include("precompile.jl")
 end # module

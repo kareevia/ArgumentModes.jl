@@ -100,7 +100,8 @@ type for a argument in a function method declaration. The argument with type
 Some or all **tᵢ** may absent in the type declaration which defaults to 
 `Nothing`. An example: `Mode[:a, :b => Int, :c => Tuple{Int, String}]`.
 
-Symbol `==` could also be added as the first argument in a constructor call to indicate that the concrete type is wanted (not an `UnionAll` as above). This
+Symbol `==` could also be added as the first argument in a constructor call to 
+indicate that the concrete type is wanted (not an `UnionAll` as above). This
 option is added only for auxiliary purposes and generally should not be useful.
 
 Note that such nonconventional syntax with brackets `[`,`]` is used to make the 
@@ -119,9 +120,9 @@ values **v₁, v₂, ...**. Some or all of **vᵢ** might be omited which defaul
 
 Construct an instance **m::Mode{[s⇒Nothing]}** with `nothing` value. The 
 type and value could be set by a subsequent call **m**`=>`**v**. Several 
-instances could be joined with `~` operator. For example, `Mode(:a)=> 25 ~ Mode
-(:b) ~ Mode(:c)=> "Hello world!"` is equivalent to `Mode(:a => 25, :b, :c => 
-"Hello world!")`.
+instances could be joined with `~` operator. For example, 
+`Mode(:a)=> 25 ~ Mode(:b) ~ Mode(:c)=> "Hello world!"` is equivalent to 
+`Mode(:a => 25, :b, :c => "Hello world!")`.
 
 # Operations on an instance
 Let **m, m₁, m₂::Mode**. Then
@@ -168,7 +169,7 @@ out when it used for function arguments and method dispatch, so it seems that
 there is no runtime overhead for using it (at least for the use cases 
 considered in the tests). 
 
-Tests on compile-time overhead showed that (for Julia 1.6) it is like 0.2-0.4 
-s. for the first use of `Mode[...]` and `Mode(...)`, and something like
-10-20 ms. for further uses (when a call signature is sufficiently changes). 
+Tests on compile-time overhead showed that (for Julia 1.6) it is like 0.2-0.5s 
+for the first call of `Mode[...]` and `Mode(...)`, and something like
+5-15ms for further uses (when a call signature is sufficiently changes). 
 Unfortunatelly, I have not found so far the way to further reduce the latency.

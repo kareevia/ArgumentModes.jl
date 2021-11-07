@@ -86,7 +86,7 @@ julia> methods(f)
 # 4 methods for generic function "f":
 [1] f(x::Mode[:iterator => Any]) in Main at REPL[34]:1
 [2] f(x::Mode[:fromargs], y...) in Main at REPL[36]:1
-[3] f(x::Union{Int64, Mode[:c => Int64, :a, :b]) in Main at REPL[38]:1
+[3] f(x::Union{Int64, Mode[:c => Int64, :a, :b]}) in Main at REPL[38]:1
 [4] f(x) in Main at REPL[33]:1
 
 julia> f(25.0)
@@ -181,7 +181,7 @@ end
 
 # using @generated to reduce compilation/inference time
 @generated function _Mode_instance_g(symbs, kwargs)
-  @nospecialize
+  #@nospecialize
   n = length(kwargs.parameters)
   types = Vector{DataType}(undef, n)
   for (i,e) in enumerate(kwargs.parameters)
@@ -189,9 +189,13 @@ end
     else   types[i] = e.parameters[2]   end
   end
   symbs = Symbol[symbs.parameters[1]...]
-  si = sortperm(symbs)
-  symbs = symbs[si]
-  types = types[si]
+  
+  if n == 1;   si = [1]
+  else
+    si = sortperm(symbs)
+    symbs = symbs[si]
+    types = types[si]
+  end
 
   for i in 2:length(symbs)
     if symbs[i-1] == symbs[i]
@@ -208,18 +212,29 @@ end
   tpls = [:(  Tuple{$(QuoteNode(symbs[i])),$(types[i])}  )  for i in 1:n]
   vals = [types[i] == Nothing ? :(nothing) : :(kwargs[$(si[i])][2])  
     for i in 1:n]
-  ntvals = [:($s = $v)  for (s,v) in zip(symbs, vals)]
+  ntvals = [Expr(:kw, s, v)  for (s,v) in zip(symbs, vals)]
   qsymbs = [QuoteNode(s)  for s in symbs]
-  quote
-    $(Expr(:meta, :inline))
-    Mode{
-        Union{$(tpls...)}, 
-        NamedTuple{($(qsymbs...),), Tuple{$(types...)}}
-      }((; $(ntvals...)))
+
+  if n == 1
+    return quote
+      $(Expr(:meta, :inline))
+      Mode{
+          $(tpls...),
+          NamedTuple{($(qsymbs...),), Tuple{$(types...)}}
+        }((; $(ntvals...)))
+    end
+  else
+    return quote
+      $(Expr(:meta, :inline))
+      Mode{
+          Union{$(tpls...)}, 
+          NamedTuple{($(qsymbs...),), Tuple{$(types...)}}
+        }((; $(ntvals...)))
+    end
   end
 end
 @generated function _extract_symbols_from_args_g(kwargs)
-  @nospecialize
+  #@nospecialize
   vals = Expr[
     x == Symbol ? :(kwargs[$i]) : :(kwargs[$i][1])
     for (i,x) in enumerate(kwargs.parameters)
@@ -230,17 +245,19 @@ end
   end
 end
 
-@inline Mode(kwargs::Union{<:Pair{Symbol}, Symbol}...) =
+@inline function Mode(kwargs::Union{<:Pair{Symbol}, Symbol}...) 
   _Mode_instance_g(_extract_symbols_from_args_g(kwargs), kwargs)
+end
 
-@inline Base.:(=>)(mode::Mode{Tuple{Name, Nothing}}, val) where 
+@inline Base.:(=>)(::Mode{Tuple{Name, Nothing}}, val) where 
   Name = Mode(Name => val)
 
 @generated function _Combined_namedtuples_to_pairs_g(nt1, nt2)
-  @nospecialize
-  prs = [:($(QuoteNode(name)) => $nt[$i])  for (nt, names) in 
-    ((:(nt1), nt1.names), (:(nt2), nt2.names))  for (i, name) in 
-    enumerate(names)]
+  #@nospecialize
+  n1 = length(nt1.names);   n2 = length(nt2.names)
+  prs = Vector{Expr}(undef, n1+n2)
+  for i in 1:n1;   prs[i] = :($(QuoteNode(nt1.names[i])) => nt1[$i])   end
+  for i in 1:n2;   prs[n1+i] = :($(QuoteNode(nt2.names[i])) => nt2[$i])   end
   quote
     $(Expr(:meta, :inline))
     ($(prs...),)
@@ -251,9 +268,8 @@ end
   Mode(_Combined_namedtuples_to_pairs_g(mode1.values, mode2.values)...)
 end
 
-
 @generated function _getindex_g(symbs, args, concrete)
-  @nospecialize
+  #@nospecialize
   n = length(args.parameters)
   symbs = Symbol[symbs.parameters[1]...]
   si = sortperm(symbs)
@@ -272,17 +288,21 @@ end
       if concrete == Val{true};   types[i] = :(args[$oi][2])   end
     end
   end
+
+  
   
   if concrete == Val{true}
     symbs = QuoteNode[QuoteNode(x)  for x in symbs]
+    t1 = n == 1 ? tpls[1] : :(Union{$(tpls...)})
     return quote
       $(Expr(:meta, :inline))
-      Mode{Union{$(tpls...)},NamedTuple{($(symbs...),), Tuple{$(types...)}}}
+      Mode{$t1, NamedTuple{($(symbs...),), Tuple{$(types...)}}}
     end
   else
+    t1 = n == 1 ? tpls[1] : :(<:Union{$(tpls...)})
     return quote
       $(Expr(:meta, :inline))
-      Mode{<:Union{$(tpls...)}}
+      Mode{$t1}
     end
   end
 end
@@ -350,6 +370,13 @@ function text_for_type_desc(io, tpls, concrete)
   print(io, "]")
 end
 
+function extract_list_of_elements(m::Type{<:Mode})
+  body = m;   while body isa UnionAll;   body = body.body   end
+  args = body.parameters[1];   if args isa TypeVar;   args = args.ub   end
+  Base.uniontypes(args)
+end
+
+
 function Base.show(io::IO, m::Type{<:Mode})
   if m == typeof(Mode())
     Base.show_type_name(io, Base.typename(Mode))
@@ -357,7 +384,7 @@ function Base.show(io::IO, m::Type{<:Mode})
   elseif m == Mode
     Base.show_type_name(io, Base.typename(Mode))
   else
-    elems = Base.uniontypes(m isa UnionAll ? m.var.ub : m.parameters[1])
+    elems = extract_list_of_elements(m)
     text_for_type_desc(io, elems, !(m isa UnionAll))
   end
   nothing
