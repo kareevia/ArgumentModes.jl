@@ -44,6 +44,7 @@ f(x::Mode[:mode1, :mode2, :mode3]) = 4
 
 @test !(Mode(:a => 5) isa Mode[:a => Float64])
 @test Mode(:a => 5) isa Mode[:a => Real]
+@test Mode(:a => 5) isa Mode[:a => Real, :b => Int]
 
 @test Mode(:a, :b=> 3)[:a, :b] == (nothing, 3)
 @test Mode(:a, :b=> 3)[:b] == 3

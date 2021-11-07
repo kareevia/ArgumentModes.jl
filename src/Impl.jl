@@ -299,10 +299,10 @@ end
       Mode{$t1, NamedTuple{($(symbs...),), Tuple{$(types...)}}}
     end
   else
-    t1 = n == 1 ? tpls[1] : :(<:Union{$(tpls...)})
+    t1 = n == 1 ? tpls[1] : :(Union{$(tpls...)})
     return quote
       $(Expr(:meta, :inline))
-      Mode{$t1}
+      Mode{<:$t1}
     end
   end
 end

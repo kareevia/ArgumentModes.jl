@@ -64,7 +64,11 @@ considered in the tests).
   symbols, and, possibly, do an action.
 """
 module ArgumentModes
-  Base.Experimental.@optlevel 1 # 0 disables inlining
+  if isdefined(Base, :Experimental) && 
+      isdefined(Base.Experimental, Symbol("@optlevel"))
+    @eval Base.Experimental.@optlevel 1 # 0 disables inlining in user-code
+  end
+
   include("Impl.jl")
   using .Impl
   Mode.body.body.name.module = ArgumentModes

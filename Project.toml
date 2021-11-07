@@ -1,4 +1,7 @@
 name = "ArgumentModes"
 uuid = "2dc46c84-39f7-4c37-9a42-c3faed15caad"
 authors = ["Iskander Kareev <kareevia@gmail.com>"]
-version = "0.1.4"
+version = "0.1.5"
+
+[compat]
+julia = "1.5"
