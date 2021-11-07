@@ -1,4 +1,4 @@
-# ArgumentsMode.jl
+# ArgumentModes.jl
 
 The package provides type `Mode` which could be seen as an extension of `Val`.
 `Mode` is intended to be used as a type for a function method argument. A 
