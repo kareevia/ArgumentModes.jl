@@ -171,5 +171,5 @@ considered in the tests).
 
 Tests on compile-time overhead showed that (for Julia 1.6) it is like 0.2-0.5s 
 for the first call of `Mode[...]` and `Mode(...)`, and something like
-5-15ms for further uses (when a call signature is sufficiently changes). 
+5-20ms for further uses (when a call signature is sufficiently changes). 
 Unfortunatelly, I have not found so far the way to further reduce the latency.
