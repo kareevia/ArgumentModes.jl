@@ -12,7 +12,7 @@ the argument. The symbols could be accompanied with additional parameters with
 prescribed types.
 
 Here is a more detailed description of the mechanics of the type. A specialized 
-`Mode` type **M=Mode{[s₁⇒t₁, s₂⇒t₂, ...]}** is determined by a collection of 
+`Mode` type **M=Mode[s₁⇒t₁, s₂⇒t₂, ...]** is determined by a collection of 
 symbols **s₁**, **s₂**, ...  of type `Symbol` and corresponding types **t₁**, 
 **t₂**, ... (of type `DataType` or `Union` of `DataType`s). An instance 
 **m::Mode** of `Mode` additionally contains values **vᵢ** for each **sᵢ** of 
@@ -25,7 +25,7 @@ See also: [`checkmode`](@ref)
 
 # Constructor of the type specialization
     Mode[ s₁ [=> t₁] [, s₂ [=> t₂]]... ]
-\n Construct a specialization **M=Mode{[s₁⇒t₁, s₂⇒t₂, ...]}** to be used as a 
+\n Construct a specialization **M=Mode[s₁⇒t₁, s₂⇒t₂, ...]** to be used as a 
 type for a argument in a function method declaration. The argument with type 
 **M** would accept only instances **m::Mode** with **param(m) ⊆ param(M)**. 
 Some or all **tᵢ** may absent in the type declaration which defaults to 
@@ -40,12 +40,12 @@ in a function signature.
 
 # Constructors of an instance
     Mode( s₁[=> v₁] [, s₂ [=> v₂]]... )
-\n Construct an instance **m::Mode{[s₁⇒typeof(v₁), s₂⇒typeof(v₂), ...]}** with
+\n Construct an instance **m::Mode[s₁⇒typeof(v₁), s₂⇒typeof(v₂), ...]** with
 values **v₁, v₂, ...**. Some or all of **vᵢ** might be omited which defaults to 
 `nothing`. An example: `Mode(:a => 25, :b, :c => "Hello world!")`.
 
     Mode(s)
-\n Construct an instance **m::Mode{[s⇒Nothing]}** with `nothing` value. The 
+\n Construct an instance **m::Mode[s⇒Nothing]** with `nothing` value. The 
 type and value could be set by a subsequent call **m**`=>`**v**. Several 
 instances could be joined with `~` operator. For example, `Mode(:a)=> 25 ~ Mode
 (:b) ~ Mode(:c)=> "Hello world!"` is equivalent to `Mode(:a => 25, :b, :c => 
@@ -53,7 +53,7 @@ instances could be joined with `~` operator. For example, `Mode(:a)=> 25 ~ Mode
 
 # Operations on an instance
 Let **m, m₁, m₂::Mode**. Then
-- `m => v` given `m::Mode{[s => Nothing]}`: return a new instance with symbol 
+- `m => v` given `m::Mode[s => Nothing]`: return a new instance with symbol 
   **s** having value and type of `v`. 
 - `m₁ ~ m₂`: join `m₁` and `m₂`. Throws an ArgumentError if `m₁` and `m₂` 
   contain the same symbols.
@@ -254,10 +254,12 @@ end
 
 @generated function _Combined_namedtuples_to_pairs_g(nt1, nt2)
   #@nospecialize
-  n1 = length(nt1.names);   n2 = length(nt2.names)
+  n1 = length(nt1.parameters[1]);   n2 = length(nt2.parameters[1])
   prs = Vector{Expr}(undef, n1+n2)
-  for i in 1:n1;   prs[i] = :($(QuoteNode(nt1.names[i])) => nt1[$i])   end
-  for i in 1:n2;   prs[n1+i] = :($(QuoteNode(nt2.names[i])) => nt2[$i])   end
+  for i in 1:n1;   prs[i] = :($(QuoteNode(nt1.parameters[1][i])) => 
+    nt1[$i])   end
+  for i in 1:n2;   prs[n1+i] = :($(QuoteNode(nt2.parameters[1][i])) => 
+    nt2[$i])   end
   quote
     $(Expr(:meta, :inline))
     ($(prs...),)

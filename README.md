@@ -81,7 +81,7 @@ Stacktrace:
 # Detailed description of mechanics
 
 Here is a more detailed description of the mechanics of the type. A specialized 
-`Mode` type **M=Mode{[s₁⇒t₁, s₂⇒t₂, ...]}** is determined by a collection of 
+`Mode` type **M=Mode[s₁⇒t₁, s₂⇒t₂, ...]** is determined by a collection of
 symbols **s₁**, **s₂**, ...  of type `Symbol` and corresponding types **t₁**, 
 **t₂**, ... (of type `DataType` or `Union` of `DataType`s). An instance 
 **m::Mode** of `Mode` additionally contains values **vᵢ** for each **sᵢ** of 
@@ -94,7 +94,7 @@ an appropriate method of a function based on **param(m)**.
 
     Mode[ s₁ [=> t₁] [, s₂ [=> t₂]]... ]
 
-Construct a specialization **M=Mode{[s₁⇒t₁, s₂⇒t₂, ...]}** to be used as a 
+Construct a specialization **M=Mode[s₁⇒t₁, s₂⇒t₂, ...]** to be used as a
 type for a argument in a function method declaration. The argument with type 
 **M** would accept only instances **m::Mode** with **param(m) ⊆ param(M)**. 
 Some or all **tᵢ** may absent in the type declaration which defaults to 
@@ -112,13 +112,13 @@ in a function signature.
 
     Mode( s₁[=> v₁] [, s₂ [=> v₂]]... )
 
-Construct an instance **m::Mode{[s₁⇒typeof(v₁), s₂⇒typeof(v₂), ...]}** with
+Construct an instance **m::Mode[s₁⇒typeof(v₁), s₂⇒typeof(v₂), ...]** with
 values **v₁, v₂, ...**. Some or all of **vᵢ** might be omited which defaults to 
 `nothing`. An example: `Mode(:a => 25, :b, :c => "Hello world!")`.
 
     Mode(s)
 
-Construct an instance **m::Mode{[s⇒Nothing]}** with `nothing` value. The 
+Construct an instance **m::Mode[s⇒Nothing]** with `nothing` value. The
 type and value could be set by a subsequent call **m**`=>`**v**. Several 
 instances could be joined with `~` operator. For example, 
 `Mode(:a)=> 25 ~ Mode(:b) ~ Mode(:c)=> "Hello world!"` is equivalent to 
@@ -126,7 +126,7 @@ instances could be joined with `~` operator. For example,
 
 # Operations on an instance
 Let **m, m₁, m₂::Mode**. Then
-- `m => v` given `m::Mode{[s => Nothing]}`: return a new instance with symbol 
+- `m => v` given `m::Mode[s => Nothing]`: return a new instance with symbol
   **s** having value and type of `v`. 
 - `m₁ ~ m₂`: join `m₁` and `m₂`. Throws an ArgumentError if `m₁` and `m₂` 
   contain the same symbols.

@@ -51,7 +51,7 @@ considered in the tests).
   in a function call as an argument value.
 
 # Operations on a `Mode` instance
-- `m => v` given `m::Mode{[s => Nothing]}`: return a new instance with single 
+- `m => v` given `m::Mode[s => Nothing]`: return a new instance with single 
   symbol in it.
 - `m₁ ~ m₂`: join `m₁` and `m₂`.
 - `keys(m), values(m), pairs(m)`: return symbols / values / pairs of symbols 
@@ -71,7 +71,7 @@ module ArgumentModes
 
   include("Impl.jl")
   using .Impl
-  Mode.body.body.name.module = ArgumentModes
+  # Mode.body.body.name.module = ArgumentModes
   export checkmode
   export Mode
 
